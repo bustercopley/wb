@@ -1,6 +1,8 @@
 #include <tree/tree.hpp>
 #include <xoshiro256starstar/xoshiro256starstar.hpp>
 
+#include <iterator>
+
 template <typename T> struct cmp {
   T a;
   auto operator()(T x) { return x <=> a; };
@@ -8,8 +10,100 @@ template <typename T> struct cmp {
 
 template <typename T> cmp<T> make_cmp(T a) { return cmp<T>{a}; }
 
+// Iterate from beginning to end
+template <typename T> bool verify_size(tree<T> &dictionary) {
+  std::size_t count{};
+  for (auto iter = dictionary.begin(); iter != dictionary.end(); ++iter) {
+    ++count;
+    if (count > dictionary.size()) { break; }
+  }
+  if (count != dictionary.size()) {
+    std::printf("Tree counting test failed, reached %d/%d\n", (int)count,
+      (int)dictionary.size());
+    return false;
+  }
+  // Check that prev(begin) == end
+  if (auto prev = std::prev(dictionary.begin()); prev != dictionary.end()) {
+    std::printf("Tree iterator circularity test failed\n");
+    return false;
+  }
+  return true;
+}
+
+bool test_small_trees() {
+  // For each small tree, can iterate from beginning to end,
+  // exchange any pair of items, erase any single item, then iterate again
+  for (std::size_t size = 1; size != 7; ++size) {
+    for (std::size_t i = 0; i != size; ++i) {
+      for (std::size_t j = 0; j != size; ++j) {
+        if (size == 1 || i != j) {
+          for (int pattern = 0; pattern != 1 << size; ++pattern) {
+            for (std::size_t k = 0; k != size; ++k) {
+              tree<int> dictionary;
+              // Insert items according to pattern
+              for (std::size_t l = 0; l != size; ++l) {
+                if ((pattern >> l) & 1) {
+                  dictionary.insert(dictionary.end(), l);
+                } else {
+                  dictionary.insert(dictionary.begin(), l);
+                }
+              }
+              // Check iteration
+              if (!verify_size(dictionary)) {
+                std::printf(
+                  "Small tree with size %d and pattern %d, cannot iterate\n",
+                  (int)size, (int)pattern);
+                return false;
+              }
+              if (size > 1) {
+                // Exchange a pair of items
+                auto iter = std::next(dictionary.begin(), i);
+                auto jter = std::next(dictionary.begin(), j);
+                dictionary.exchange_elements(iter, jter);
+              }
+              // Erase an item
+              auto kter = std::next(dictionary.begin(), k);
+              dictionary.erase(kter);
+              // Check iteration
+              if (!verify_size(dictionary)) {
+                std::printf(
+                  "Small tree with size %d and pattern %d, cannot iterate\n"
+                  "  after exchanging %d, %d and erasing %d\n",
+                  (int)size, (int)pattern, (int)i, (int)j, (int)k);
+                return false;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return true;
+}
+
+bool items_are_in_ascending_order(auto &container) {
+  float x0 = -std::numeric_limits<float>::infinity();
+  for (float x: container) {
+    if (x < x0) { return false; }
+    x0 = x;
+  }
+  return true;
+}
+
 int main() {
-  constexpr std::size_t repeat_count{32};
+  bool ok = true;
+  std::printf("Small dictionary tests\n");
+
+  if (test_small_trees()) {
+    std::printf("  build, iterate, exchange, erase for small trees - ok\n");
+  } else {
+    std::printf("  build, iterate, exchange, erase for small trees - fail\n");
+    ok = false;
+  }
+
+  std::printf("Large dictionary tests\n");
+
+  constexpr std::size_t repeat_count{64};
   constexpr std::size_t point_count{65536};
 
   tree<float> dictionary;
@@ -47,23 +141,48 @@ int main() {
 
 out:
 
-  bool ok = true;
-  float prev = -std::numeric_limits<float>::infinity();
-  for (auto x: dictionary) {
-    if (x < prev) {
-      ok = false;
-      break;
-    }
+  if (items_are_in_ascending_order(dictionary)) {
+    std::printf("  item order test ok\n");
+  } else {
+    std::printf("  item order test failed\n");
+    ok = false;
   }
 
-  std::printf("Dictionary test %s\n"
-              "  insertions %llu, deletions %llu, size %llu\n",
-    (ok ? "succeeded" : "failed"), insertions, deletions, dictionary.size());
+  std::printf("  insertions %llu, deletions %llu, size %llu\n", insertions,
+    deletions, dictionary.size());
 
   if (dictionary.size() == insertions - deletions) {
     std::printf("  size ok\n");
   } else {
     std::printf("  size does not match, should be %llu\n", insertions - deletions);
+    ok = false;
+  }
+
+  if (!dictionary.empty()) {
+    std::vector<float> elements;
+    elements.reserve(dictionary.size());
+
+    std::ranges::copy(dictionary, std::back_inserter(elements));
+
+    auto tree_iter = dictionary.end();
+    auto vector_iter = elements.end();
+    std::size_t step{};
+    while (tree_iter != dictionary.begin()) {
+      --tree_iter;
+      --vector_iter;
+      if (*tree_iter != *vector_iter) { break; }
+      ++step;
+    }
+    if (step != dictionary.size()) {
+      std::printf("  iterator decrement test failed at step %d\n", (int)step);
+      ok = false;
+    } else if (tree_iter != dictionary.begin()) {
+      std::printf(
+        "  iterator decrement test failed, did not reach beginning\n");
+      ok = false;
+    } else {
+      std::printf("  iterator decrement test succeeded\n");
+    }
   }
 
   return ok ? 0 : 1;

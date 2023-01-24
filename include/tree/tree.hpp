@@ -4,6 +4,8 @@
 
 // Weight-balanced tree [1]
 
+// Note:
+
 // The ordering of items in the dictionary is not given by a static order
 // relation known ahead of time, but is maintained dynamically by the line-
 // sweep algorithm.
@@ -11,6 +13,8 @@
 // The algorithm guarantees that at the point in time when a binary search is
 // performed, the items in the dictionary are partitioned about the supplied
 // order relation.
+
+// This situation is not handled by the standard library associative containers.
 
 // [1] Balancing weight-balanced trees
 //     Yoichi Hirai
@@ -34,6 +38,9 @@ public:
     using reference = T &;
     using iterator_category = std::bidirectional_iterator_tag;
 
+    // Singular value required for range iterator
+    iterator(): p_(nullptr) {}
+
     T &operator*() const { return p_->value_; }
     T *operator->() const { return &p_->value_; }
 
@@ -48,8 +55,19 @@ public:
       return iterator{oldp};
     }
 
-    bool operator!=(const iterator &other) { return p_ != other.p_; }
-    bool operator==(const iterator &other) { return p_ == other.p_; }
+    iterator &operator--() {
+      p_ = inorder_predecessor(p_);
+      return *this;
+    }
+
+    iterator operator--(int) {
+      node<T> *oldp = p_;
+      p_ = inorder_predecessor(p_);
+      return iterator{oldp};
+    }
+
+    bool operator!=(const iterator &other) const { return p_ != other.p_; }
+    bool operator==(const iterator &other) const { return p_ == other.p_; }
   };
 
   struct const_iterator {
@@ -81,6 +99,17 @@ public:
       return iterator{oldp};
     }
 
+    iterator &operator--() {
+      p_ = inorder_predecessor(p_);
+      return *this;
+    }
+
+    iterator operator--(int) {
+      node<T> *oldp = p_;
+      p_ = inorder_predecessor(p_);
+      return iterator{oldp};
+    }
+
     bool operator!=(const iterator &other) { return p_ != other.p_; }
   };
 
@@ -92,6 +121,7 @@ public:
 
   tree() {
     sentinel_.left_ = nullptr;
+    sentinel_.right_ = nullptr;
     sentinel_.parent_ = &sentinel_;
   }
 
@@ -103,9 +133,13 @@ public:
 
   iterator end() { return iterator(&sentinel_); }
 
-  std::size_t size() { return empty() ? 0 : sentinel_.left_->size_; }
+  const_iterator begin() const { return begin(); }
 
-  bool empty() { return !sentinel_.left_; }
+  const_iterator end() const { return end(); }
+
+  std::size_t size() const { return empty() ? 0 : sentinel_.left_->size_; }
+
+  bool empty() const { return !sentinel_.left_; }
 
   template <typename U> iterator insert(iterator position, U &&value) {
     return iterator(position.p_->insert_before_self((U &&)value));
@@ -143,6 +177,10 @@ public:
     } else {
       return iterator(&sentinel_);
     }
+  }
+
+  std::tuple<iterator, iterator> equal_range(auto &&cmp) {
+    return std::make_tuple(lower_bound(cmp), upper_bound(cmp));
   }
 
 #if TESTING

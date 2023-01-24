@@ -40,6 +40,19 @@ private:
     return p;
   }
 
+  friend node<T> *inorder_predecessor(node<T> *p) {
+    if (p->left_) {
+      p = p->left_;
+      while (p->right_) { p = p->right_; }
+    } else {
+      while (!is_sentinel(p->parent_) && p == p->parent_->left_) {
+        p = p->parent_;
+      }
+      p = p->parent_;
+    }
+    return p;
+  }
+
   friend node<T> *postorder_successor(node<T> *p) {
     node<T> *q = p->parent_;
     if (p == q->left_) {
@@ -181,11 +194,7 @@ private:
   }
 
   void replace_self(node<T> *p) {
-    if (this == parent_->left_) {
-      parent_->left_ = p;
-    } else {
-      parent_->right_ = p;
-    }
+    owner(this) = p;
     if (p) { p->parent_ = parent_; }
   }
 
@@ -196,12 +205,15 @@ private:
       if (p) { p->parent_ = parent_; }
       if (this == parent_->left_) {
         parent_->left_ = p;
-        p = parent_->balance_left();
+        if (!is_sentinel(parent_)) {
+          p = parent_->balance_left();
+          p->balance_above(-1);
+        }
       } else {
         parent_->right_ = p;
         p = parent_->balance_right();
+        p->balance_above(-1);
       }
-      p->balance_above(-1);
       delete this;
     } else {
       node<T> *p = inorder_successor(this);
@@ -232,11 +244,38 @@ private:
   }
 
   friend void exchange_nodes(node<T> *p, node<T> *q) {
-    std::swap(owner(p), owner(q));
     std::swap(p->size_, q->size_);
-    std::swap(p->left_, q->left_);
-    std::swap(p->right_, q->right_);
-    std::swap(p->parent_, q->parent_);
+    if (p->parent_ == q) { std::swap(p, q); }
+
+    if (q->parent_ == p) {
+      owner(p) = q;
+      q->parent_ = p->parent_;
+      p->parent_ = q;
+      if (q == p->left_) {
+        p->left_ = q->left_;
+        q->left_ = p;
+        std::swap(p->right_, q->right_);
+        if (p->left_) { p->left_->parent_ = p; }
+        if (p->right_) { p->right_->parent_ = p; }
+        if (q->right_) { q->right_->parent_ = q; }
+      } else {
+        p->right_ = q->right_;
+        q->right_ = p;
+        std::swap(p->left_, q->left_);
+        if (p->left_) { p->left_->parent_ = p; }
+        if (p->right_) { p->right_->parent_ = p; }
+        if (q->left_) { q->left_->parent_ = q; }
+      }
+    } else {
+      std::swap(owner(p), owner(q));
+      std::swap(p->parent_, q->parent_);
+      std::swap(p->left_, q->left_);
+      std::swap(p->right_, q->right_);
+      if (p->left_) { p->left_->parent_ = p; }
+      if (p->right_) { p->right_->parent_ = p; }
+      if (q->left_) { q->left_->parent_ = q; }
+      if (q->right_) { q->right_->parent_ = q; }
+    }
   }
 
   void delete_subtree() {
