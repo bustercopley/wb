@@ -329,6 +329,55 @@ private:
     return p;
   }
 
+  friend auto equal_range_nodes(node<T> *p, auto &&cmp) {
+    while (true) {
+      auto cmp_result = cmp(p->value_);
+      if (cmp_result < 0) {
+        if (p->right_) {
+          p = p->right_;
+        } else {
+          p = inorder_successor(p);
+          break;
+        }
+      } else if (cmp_result > 0) {
+        if (p->left_) {
+          p = p->left_;
+        } else {
+          break;
+        }
+      } else {
+        auto l = p->left_ ? lower_bound_node(p->left_, cmp) : p;
+        auto r = p->right_ ? upper_bound_node(p->right_, cmp) : inorder_successor(p);
+        return std::make_tuple(l, r);
+      }
+    }
+    return std::make_tuple(p, p);
+  }
+
+  friend auto equal_range_nodes(node<T> *p, auto &&lcmp, auto &&rcmp) {
+    while (true) {
+      if (lcmp(p->value_) < 0) {
+        if (p->right_) {
+          p = p->right_;
+        } else {
+          p = inorder_successor(p);
+          break;
+        }
+      } else if (rcmp(p->value_) > 0) {
+        if (p->left_) {
+          p = p->left_;
+        } else {
+          break;
+        }
+      } else {
+        auto l = p->left_ ? lower_bound_node(p->left_, lcmp) : p;
+        auto r = p->right_ ? upper_bound_node(p->right_, rcmp) : inorder_successor(p);
+        return std::make_tuple(l, r);
+      }
+    }
+    return std::make_tuple(p, p);
+  }
+
 #if TESTING
   friend std::ostream &dump(std::ostream &stream, node<T> *subtree, int indentation = 0) {
     for (int i = 0; i != indentation; ++i) { stream.put(' '); }

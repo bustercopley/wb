@@ -179,8 +179,24 @@ public:
     }
   }
 
-  std::tuple<iterator, iterator> equal_range(auto &&cmp) {
-    return std::make_tuple(lower_bound(cmp), upper_bound(cmp));
+  template <typename Comp>
+  std::tuple<iterator, iterator> equal_range(Comp &&cmp) {
+    if (node<T> *p = sentinel_.left_) {
+      auto [l, r] = equal_range_nodes(p, (Comp &&)cmp);
+      return std::make_tuple(iterator(l), iterator(r));
+    } else {
+      return std::make_tuple(iterator(&sentinel_), iterator(&sentinel_));
+    }
+  }
+
+  template <typename LComp, typename RComp>
+  std::tuple<iterator, iterator> equal_range(LComp &&lcmp, RComp &&rcmp) {
+    if (node<T> *p = sentinel_.left_) {
+      auto [l, r] = equal_range_nodes(p, (LComp &&)lcmp, (RComp &&)rcmp);
+      return std::make_tuple(iterator(l), iterator(r));
+    } else {
+      return std::make_tuple(iterator(&sentinel_), iterator(&sentinel_));
+    }
   }
 
 #if TESTING

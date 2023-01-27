@@ -120,6 +120,7 @@ int main() {
   std::size_t deletions{};
 
   for (int i = 0; i != repeat_count; ++i) {
+    // Insert randomly selected values
     for (int j = 0; j != point_count; ++j) {
       auto a = dist(urbg);
       dictionary.insert(dictionary.lower_bound(make_cmp(a)), a);
@@ -127,11 +128,12 @@ int main() {
 
       if (dictionary.size() != insertions - deletions) { goto out; }
     }
+
+    // Erase items between two randomly selected values
     auto a = dist(urbg);
     auto b = dist(urbg);
     if (a > b) { std::swap(a, b); }
-    auto iter = dictionary.lower_bound(make_cmp(a));
-    auto jter = dictionary.upper_bound(make_cmp(b));
+    auto [iter, jter] = dictionary.equal_range(make_cmp(a), make_cmp(b));
     while (iter != jter) {
       iter = dictionary.erase(iter);
       ++deletions;
