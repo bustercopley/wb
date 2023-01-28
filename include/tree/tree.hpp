@@ -27,7 +27,7 @@ private:
 public:
   struct iterator {
   private:
-    friend class tree<T>;
+    friend struct tree<T>;
     node<T> *p_;
     iterator(node<T> *p): p_(p) {}
 
@@ -83,6 +83,10 @@ public:
     using reference = const T &;
     using iterator_category = std::bidirectional_iterator_tag;
 
+    // Singular value required for range iterator
+    const_iterator(): p_(nullptr) {}
+
+    // Convert iterator to const_iterator
     const_iterator(const iterator &other): p_(other.p_) {}
 
     const T &operator*() const { return p_->value_; }
@@ -96,22 +100,36 @@ public:
     const_iterator operator++(int) {
       const node<T> *oldp = p_;
       p_ = inorder_successor(p_);
-      return iterator{oldp};
+      return const_iterator{oldp};
     }
 
-    iterator &operator--() {
+    const_iterator &operator--() {
       p_ = inorder_predecessor(p_);
       return *this;
     }
 
-    iterator operator--(int) {
+    const_iterator operator--(int) {
       node<T> *oldp = p_;
       p_ = inorder_predecessor(p_);
-      return iterator{oldp};
+      return const_iterator{oldp};
     }
 
-    bool operator!=(const iterator &other) { return p_ != other.p_; }
+    bool operator!=(const iterator &other) const { return p_ != other.p_; }
+    bool operator==(const iterator &other) const { return p_ == other.p_; }
+    bool operator!=(const const_iterator &other) const {
+      return p_ != other.p_;
+    }
+    bool operator==(const const_iterator &other) const {
+      return p_ == other.p_;
+    }
   };
+
+  friend bool operator!=(const iterator &a, const const_iterator &b) {
+    return b != a;
+  }
+  friend bool operator==(const iterator &a, const const_iterator &b) {
+    return b == a;
+  }
 
 public:
   ~tree() {
@@ -205,3 +223,6 @@ public:
   }
 #endif
 };
+
+static_assert(std::bidirectional_iterator<tree<int>::iterator>);
+static_assert(std::bidirectional_iterator<tree<int>::const_iterator>);

@@ -20,7 +20,7 @@ template <typename T> struct node {
       parent_(nullptr) {}
 
 private:
-  friend class tree<T>;
+  friend struct tree<T>;
   node() = default;
 
   friend std::size_t size(const node<T> *s) { return s ? s->size_ : 0; }
