@@ -1,6 +1,7 @@
 #include <tree/tree.hpp>
 #include <xoshiro256starstar/xoshiro256starstar.hpp>
 
+#include <algorithm>
 #include <iterator>
 
 template <typename T> struct cmp {
@@ -88,6 +89,39 @@ bool items_are_in_ascending_order(auto &container) {
     x0 = x;
   }
   return true;
+}
+
+bool test_equal_range(auto &urbg, bool do_shuffle) {
+  std::printf("Test equal range with two comparators\n");
+  tree<int> dictionary;
+  // Insert the numbers 1 to 100 into the tree, in random order
+  std::vector<int> values(100);
+  std::iota(values.begin(), values.end(), 1);
+  if (do_shuffle) { std::ranges::shuffle(values, urbg); }
+  for (auto value: values) {
+    dictionary.insert(dictionary.lower_bound(make_cmp(value)), value);
+  }
+  // Find the numbers from 40 to 60 (inclusive) in the tree
+  auto [begin, end] = dictionary.equal_range(make_cmp(40), make_cmp(60));
+  // Verify that the range contains 21 numbers from 40 to 60 (inclusive)
+  bool ok = true;
+  std::size_t count{};
+  for (auto value: std::ranges::subrange(begin, end)) {
+    if (value < 40) {
+      ok = false;
+      std::printf("  found %d (too small)\n", value);
+    } else if (value > 60) {
+      ok = false;
+      std::printf("  found %d (too great)\n", value);
+    }
+    ++count;
+  }
+  if (count != 21) {
+    ok = false;
+    std::printf("  found %d numbers (should be 21)\n", (int)count);
+  }
+
+  return ok;
 }
 
 int main() {
@@ -186,6 +220,9 @@ out:
       std::printf("  iterator decrement test succeeded\n");
     }
   }
+
+  ok = ok && test_equal_range(urbg, true);
+  ok = ok && test_equal_range(urbg, false);
 
   return ok ? 0 : 1;
 }

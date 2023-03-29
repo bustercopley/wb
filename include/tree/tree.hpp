@@ -197,6 +197,8 @@ public:
     }
   }
 
+  // Return a range containing all elements 'x' in the tree which satisfy
+  // 'cmp(x) == 0'
   template <typename Comp>
   std::tuple<iterator, iterator> equal_range(Comp &&cmp) {
     if (node<T> *p = sentinel_.left_) {
@@ -207,6 +209,9 @@ public:
     }
   }
 
+  // Return a range containing all elements 'x' in the tree which satisfy
+  // 'lcmp(x) >= 0' and 'rcmp(x) <= 0', assuming the tree is partitioned
+  // with respect to both comparators
   template <typename LComp, typename RComp>
   std::tuple<iterator, iterator> equal_range(LComp &&lcmp, RComp &&rcmp) {
     if (node<T> *p = sentinel_.left_) {
