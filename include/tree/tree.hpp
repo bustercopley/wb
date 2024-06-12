@@ -2,23 +2,31 @@
 
 #include "node.hpp"
 
-// Weight-balanced tree [1]
+// An ordered associative container for situations where the order changes
+// dynamically, such as the Bentley-Ottmann algorithm [BentleyOttmann1979]
+// and similar sweep-line algorithms. It is implemented as a weight-balanced
+// tree [HiraiYamamoto2011].
 
-// Note:
+// struct tree <T> provides the following standard container methods:
+//   ~tree(); // destructor
+//   tree(); // default constructor
+//   iterator begin();
+//   iterator end();
+//   const_iterator begin() const;
+//   const_iterator end() const;
+//   std::size_t size() const;
+//   bool empty() const;
 
-// The ordering of items in the dictionary is not given by a static order
-// relation known ahead of time, but is maintained dynamically by the line-
-// sweep algorithm.
+// The binary search methods 'lower_bound(cmp)', 'upper_bound(cmp)',
+// 'equal_range(cmp)' and 'equal_range(lcmp, rcmp)' assume that the tree
+// is partitioned by the comparator(s), that is, there are iterators 'i' and 'j'
+// such that
+//   cmp(n.value) returns -1 for each node n in [begin, i),
+//   cmp(n.value) returns 0 for each node n in [i, j),
+//   cmp(n.value) returns +1 for each node n in [j, end)
 
-// The algorithm guarantees that at the point in time when a binary search is
-// performed, the items in the dictionary are partitioned about the supplied
-// order relation.
-
-// This situation is not handled by the standard library associative containers.
-
-// [1] Balancing weight-balanced trees
-//     Yoichi Hirai
-//     Journal of Functional Programming 21(3): 287-301, 2011
+// The user must restore this invariant before searching, using the methods
+// 'insert(position, value)', 'erase(position)' and 'exchange_elements(i, j)'.
 
 template <typename T> struct tree {
 private:
