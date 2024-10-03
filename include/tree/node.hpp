@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstddef>
-#include <iostream>
 #include <memory>
 
 template <typename T> struct tree;
@@ -377,34 +376,4 @@ private:
     }
     return std::make_tuple(p, p);
   }
-
-#if TESTING
-  friend std::ostream &dump(std::ostream &stream, node<T> *subtree, int indentation = 0) {
-    for (int i = 0; i != indentation; ++i) { stream.put(' '); }
-    if (subtree) {
-      stream << subtree->value_                 //
-             << "; address " << (void *)subtree //
-             << "; size " << size(subtree);
-      if (subtree == subtree->parent_->left_) {
-        stream << "; left child of " << (void *)subtree->parent_;
-      } else if (subtree == subtree->parent_->right_) {
-        stream << "; right child of " << (void *)subtree->parent_;
-      } else {
-        stream << "; disowned by " << (void *)subtree->parent_;
-      }
-      if (subtree->left_ && subtree->left_->parent_ != subtree) {
-        stream << "; bad left_->parent " << (void *)subtree->left_->parent_;
-      }
-      if (subtree->right_ && subtree->right_->parent_ != subtree) {
-        stream << "; bad right_->parent " << (void *)subtree->right_->parent_;
-      }
-      stream << '\n';
-      dump(stream, subtree->left_, indentation + 2);
-      dump(stream, subtree->right_, indentation + 2);
-      return stream;
-    } else {
-      return stream << "null\n";
-    }
-  }
-#endif
 };

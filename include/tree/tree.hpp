@@ -221,20 +221,14 @@ public:
   // 'lcmp(x) >= 0' and 'rcmp(x) <= 0', assuming the tree is partitioned
   // with respect to both comparators
   template <typename LComp, typename RComp>
-  std::tuple<iterator, iterator> equal_range(LComp &&lcmp, RComp &&rcmp) {
+  std::tuple<iterator, iterator> range_between(LComp &&lcmp, RComp &&rcmp) {
     if (node<T> *p = sentinel_.left_) {
-      auto [l, r] = equal_range_nodes(p, (LComp &&)lcmp, (RComp &&)rcmp);
+      auto [l, r] = range_between_nodes(p, (LComp &&)lcmp, (RComp &&)rcmp);
       return std::make_tuple(iterator(l), iterator(r));
     } else {
       return std::make_tuple(iterator(&sentinel_), iterator(&sentinel_));
     }
   }
-
-#if TESTING
-  friend std::ostream &dump(std::ostream &stream, tree<T> &dictionary) {
-    return dump(stream, dictionary.sentinel_.left_, 0);
-  }
-#endif
 };
 
 static_assert(std::bidirectional_iterator<tree<int>::iterator>);
