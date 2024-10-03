@@ -91,8 +91,8 @@ bool items_are_in_ascending_order(auto &container) {
   return true;
 }
 
-bool test_equal_range(auto &urbg, bool do_shuffle) {
-  std::printf("Test equal range with two comparators\n");
+bool test_range_between(auto &urbg, bool do_shuffle) {
+  std::printf("Test range_between\n");
   tree<int> dictionary;
   // Insert the numbers 1 to 100 into the tree, in random order
   std::vector<int> values(100);
@@ -102,7 +102,7 @@ bool test_equal_range(auto &urbg, bool do_shuffle) {
     dictionary.insert(dictionary.lower_bound(make_cmp(value)), value);
   }
   // Find the numbers from 40 to 60 (inclusive) in the tree
-  auto [begin, end] = dictionary.equal_range(make_cmp(40), make_cmp(60));
+  auto [begin, end] = dictionary.range_between(make_cmp(40), make_cmp(60));
   // Verify that the range contains 21 numbers from 40 to 60 (inclusive)
   bool ok = true;
   std::size_t count{};
@@ -167,7 +167,7 @@ int main() {
     auto a = dist(urbg);
     auto b = dist(urbg);
     if (a > b) { std::swap(a, b); }
-    auto [iter, jter] = dictionary.equal_range(make_cmp(a), make_cmp(b));
+    auto [iter, jter] = dictionary.range_between(make_cmp(a), make_cmp(b));
     while (iter != jter) {
       iter = dictionary.erase(iter);
       ++deletions;
@@ -221,8 +221,8 @@ out:
     }
   }
 
-  ok = ok && test_equal_range(urbg, true);
-  ok = ok && test_equal_range(urbg, false);
+  ok = ok && test_range_between(urbg, true);
+  ok = ok && test_range_between(urbg, false);
 
   return ok ? 0 : 1;
 }

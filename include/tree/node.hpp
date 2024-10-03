@@ -353,7 +353,7 @@ private:
     return std::make_tuple(p, p);
   }
 
-  friend auto equal_range_nodes(node<T> *p, auto &&lcmp, auto &&rcmp) {
+  friend auto range_between_nodes(node<T> *p, auto &&lcmp, auto &&rcmp) {
     while (true) {
       if (lcmp(p->value_) < 0) {
         if (p->right_) {
