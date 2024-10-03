@@ -2,12 +2,16 @@
 
 #include "node.hpp"
 
-// An ordered associative container for situations where the order changes
-// dynamically, such as the Bentley-Ottmann algorithm [BentleyOttmann1979]
-// and similar sweep-line algorithms. It is implemented as a weight-balanced
-// tree [HiraiYamamoto2011].
+// An ordered associative container representing an arbitrary sequence
+// of values and allowing binary search with arbitrary comparators.
+// The user must establish the precondition that the sequence is ordered
+// compatibly with the comparators before performing a binary search.
 
-// struct tree <T> provides the following standard container methods:
+// This may be useful in situations where the order changes dynamically, such
+// as the Bentley-Ottmann algorithm [BentleyOttmann1979] and similar sweep-line
+// algorithms. It is implemented as a weight-balanced tree [HiraiYamamoto2011].
+
+// The class template 'tree' provides the following standard container methods:
 //   ~tree(); // destructor
 //   tree(); // default constructor
 //   iterator begin();
@@ -17,16 +21,38 @@
 //   std::size_t size() const;
 //   bool empty() const;
 
-// The binary search methods 'lower_bound(cmp)', 'upper_bound(cmp)',
-// 'equal_range(cmp)' and 'equal_range(lcmp, rcmp)' assume that the tree
-// is partitioned by the comparator(s), that is, there are iterators 'i' and 'j'
-// such that
-//   cmp(n.value) returns -1 for each node n in [begin, i),
-//   cmp(n.value) returns 0 for each node n in [i, j),
-//   cmp(n.value) returns +1 for each node n in [j, end)
+// The method 'insert(position, value)' inserts 'value' before 'position',
+// which must be a valid iterator pointing to an element or to the end of
+// the sequence. It returns an iterator to the inserted element.
+// No existing iterators are invalidated.
 
-// The user must restore this invariant before searching, using the methods
-// 'insert(position, value)', 'erase(position)' and 'exchange_elements(i, j)'.
+// The method 'erase(position)' erases the element pointed to by the
+// iterator 'position', which must be a valid iterator pointing to an
+// element. Iterators to the erased element are invalidated. No other
+// iterators are invalidated.
+
+// The method 'exchange_elements(i, j)' exchanges the elements pointed
+// to by the iterators 'i' and 'j', which must be valid iterators pointing
+// to elements, without moving any other values in the sequence. No iterators
+// are invalidated. No iterators are invalidated, but iterators equal to
+// 'i' or 'j' are relocated: after 'exchange_elements' returns they point
+// to the old element in its new position in the sequence.
+
+// The binary search methods 'lower_bound(cmp)', 'upper_bound(cmp)',
+// 'equal_range(cmp)' assume that the tree is partitioned by the
+// comparator 'cmp', that is, there are iterators 'i' and 'j' such that
+//   cmp(x) returns -1 for each element x in [begin, i)
+//   cmp(x) returns 0 for each element x in [i, j)
+//   cmp(x) returns +1 for each element x in [j, end)
+// Then 'lower_bound' returns 'i', 'upper_bound' returns 'j' and
+// 'equal_range' returns the tuple '(i, j)'.
+
+// The remaining binary search method 'equal_range(lcmp, rcmp)' assumes
+// that the tree is partitioned by both comparators 'lcmp' and 'rcmp'
+// and that 'lcmp(x) <= rcmp(x)' for all elements 'x' and returns the
+// tuple '(i, j)' of iterators such that
+//   lcmp(x) returns -1 if and only if x is in [begin, i)
+//   rcmp(x) returns +1 if and only if x is in [j, end)
 
 template <typename T> struct tree {
 private:
@@ -178,12 +204,6 @@ public:
   }
 
   void exchange_elements(iterator i, iterator j) { exchange_nodes(i.p_, j.p_); }
-
-  // Searching assumes that the tree is partitioned by the comparator, that is
-  // there are iterators i and j such that
-  //   cmp(n.value) returns -1 for each node n in [begin, i),
-  //   cmp(n.value) returns 0 for each node n in [i, j),
-  //   cmp(n.value) returns +1 for each node n in [j, end)
 
   // Return an iterator to the first element 'x' in the tree which satisfies
   // 'cmp(x) >= 0', or if no such element exists, the past-the-end sentinel
