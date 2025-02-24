@@ -106,7 +106,7 @@ public:
 
   struct const_iterator {
   private:
-    friend class tree<T>;
+    friend struct tree<T>;
     const node<T> *p_;
     const_iterator(node<T> *p): p_(p) {}
 
