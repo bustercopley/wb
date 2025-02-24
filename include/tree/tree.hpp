@@ -165,6 +165,12 @@ public:
     return b == a;
   }
 
+  node<T> *first_node() {
+    node<T> *p = &sentinel_;
+    while (p->left_) { p = p->left_; }
+    return p;
+  }
+
 public:
   ~tree() {
     node<T> *p = sentinel_.left_;
@@ -177,17 +183,10 @@ public:
     sentinel_.parent_ = &sentinel_;
   }
 
-  iterator begin() {
-    node<T> *p = &sentinel_;
-    while (p->left_) { p = p->left_; }
-    return iterator(p);
-  }
-
+  iterator begin() { return iterator(first_node()); }
   iterator end() { return iterator(&sentinel_); }
-
-  const_iterator begin() const { return begin(); }
-
-  const_iterator end() const { return end(); }
+  const_iterator begin() const { return const_iterator(first_node()); }
+  const_iterator end() const { return const_iterator(&sentinel_); }
 
   std::size_t size() const { return empty() ? 0 : sentinel_.left_->size_; }
 
