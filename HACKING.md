@@ -77,6 +77,10 @@ in the terminal.
 
 ### Configure, build and test
 
+The tests depend on the library `xoshiro256starstar`[3], which you should
+install according to the instructions in its own `BUILDING.md` file before
+building the project in developer mode.
+
 If you followed the above instructions, then you can configure, build and test
 the project respectively with the following commands from the project root on
 any operating system with any build system:
@@ -109,3 +113,4 @@ fix them respectively. Customization available using the `FORMAT_PATTERNS` and
 
 [1]: https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html
 [2]: https://cmake.org/download/
+[3]: https://github.com/bustercopley/xoshiro256starstar

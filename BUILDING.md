@@ -21,6 +21,8 @@ cmake -S . -B build
 cmake --build build --config Release
 ```
 
+For building and running tests (in developer mode), see the `HACKING.md` file.
+
 ### Building with MSVC
 
 Note that MSVC by default is not standards compliant and you need to pass some
