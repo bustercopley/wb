@@ -110,7 +110,7 @@ public:
   private:
     friend struct tree<T>;
     const detail::node<T> *p_;
-    const_iterator(detail::node<T> *p): p_(p) {}
+    const_iterator(const detail::node<T> *p): p_(p) {}
 
   public:
     using difference_type = std::ptrdiff_t;
@@ -167,12 +167,6 @@ public:
     return b == a;
   }
 
-  detail::node<T> *first_node() {
-    detail::node<T> *p = &sentinel_;
-    while (p->left_) { p = p->left_; }
-    return p;
-  }
-
 public:
   ~tree() {
     detail::node<T> *p = sentinel_.left_;
@@ -185,9 +179,17 @@ public:
     sentinel_.parent_ = &sentinel_;
   }
 
-  iterator begin() { return iterator(first_node()); }
+  iterator begin() {
+    detail::node<T> *p = &sentinel_;
+    while (p->left_) { p = p->left_; }
+    return iterator{p};
+  }
   iterator end() { return iterator(&sentinel_); }
-  const_iterator begin() const { return const_iterator(first_node()); }
+  const_iterator begin() const {
+    const detail::node<T> *p = &sentinel_;
+    while (p->left_) { p = p->left_; }
+    return const_iterator{p};
+  }
   const_iterator end() const { return const_iterator(&sentinel_); }
 
   std::size_t size() const { return empty() ? 0 : sentinel_.left_->size_; }

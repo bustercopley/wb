@@ -29,7 +29,7 @@ private:
 
   friend std::size_t size(const node<T> *s) { return s ? s->size_ : 0; }
 
-  friend bool is_sentinel(node<T> *p) { return p->parent_ == p; }
+  friend bool is_sentinel(const node<T> *p) { return p->parent_ == p; }
 
   friend node<T> *inorder_successor(node<T> *p) {
     if (p->right_) {
@@ -44,7 +44,33 @@ private:
     return p;
   }
 
+  friend const node<T> *inorder_successor(const node<T> *p) {
+    if (p->right_) {
+      p = p->right_;
+      while (p->left_) { p = p->left_; }
+    } else {
+      while (!is_sentinel(p->parent_) && p == p->parent_->right_) {
+        p = p->parent_;
+      }
+      p = p->parent_;
+    }
+    return p;
+  }
+
   friend node<T> *inorder_predecessor(node<T> *p) {
+    if (p->left_) {
+      p = p->left_;
+      while (p->right_) { p = p->right_; }
+    } else {
+      while (!is_sentinel(p->parent_) && p == p->parent_->left_) {
+        p = p->parent_;
+      }
+      p = p->parent_;
+    }
+    return p;
+  }
+
+  friend const node<T> *inorder_predecessor(const node<T> *p) {
     if (p->left_) {
       p = p->left_;
       while (p->right_) { p = p->right_; }

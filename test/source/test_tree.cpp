@@ -12,7 +12,7 @@ template <typename T> struct cmp {
 template <typename T> cmp<T> make_cmp(T a) { return cmp<T>{a}; }
 
 // Iterate from beginning to end
-template <typename T> bool verify_size(wb::tree<T> &dictionary) {
+template <typename T> bool verify_size(const wb::tree<T> &dictionary) {
   std::size_t count{};
   for (auto iter = dictionary.begin(); iter != dictionary.end(); ++iter) {
     ++count;
@@ -27,6 +27,13 @@ template <typename T> bool verify_size(wb::tree<T> &dictionary) {
   if (auto prev = std::prev(dictionary.begin()); prev != dictionary.end()) {
     std::printf("Tree iterator circularity test failed\n");
     return false;
+  }
+  // Check that prev(next(iter)) == iter
+  for (auto iter = dictionary.begin(); iter != dictionary.end(); ++iter) {
+    if (std::prev(std::next(iter)) != iter) {
+      std::printf("Tree prev == next failed\n");
+      return false;
+    }
   }
   return true;
 }
