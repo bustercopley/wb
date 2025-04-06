@@ -61,18 +61,18 @@ cmake --install build --config Release
 This project exports a CMake package to be used with the [`find_package`][3]
 command of CMake:
 
-* Package name: `tree`
-* Target name: `tree::tree`
+* Package name: `wbtree`
+* Target name: `wbtree::wbtree`
 
 Example usage:
 
 ```cmake
-find_package(tree REQUIRED)
+find_package(wbtree REQUIRED)
 # Declare the imported target as a build requirement using PRIVATE, where
 # project_target is a target created in the consuming project
 target_link_libraries(
     project_target PRIVATE
-    tree::tree
+    wbtree::wbtree
 )
 ```
 

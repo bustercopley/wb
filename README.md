@@ -1,6 +1,6 @@
-# tree
+# wbtree
 
-This is the 'tree' project, a C++20 implementation of a weight-balanced
+This is the `wbtree` project, a C++20 implementation of a weight-balanced
 binary tree. It provides an ordered associative container representing
 an arbitrary sequence of values and allowing binary search with arbitrary
 comparators (the user must establish the precondition that the sequence

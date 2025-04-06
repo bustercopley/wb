@@ -1,5 +1,5 @@
 if(PROJECT_IS_TOP_LEVEL)
-  set(CMAKE_INSTALL_INCLUDEDIR include/tree CACHE PATH "")
+  set(CMAKE_INSTALL_INCLUDEDIR include/wbtree CACHE PATH "")
 endif()
 
 # Project is configured with no languages, so tell GNUInstallDirs the lib dir
@@ -9,17 +9,17 @@ include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
 # find_package(<package>) call for consumers to find this project
-set(package tree)
+set(package wbtree)
 
 install(
     DIRECTORY include/
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-    COMPONENT tree_Development
+    COMPONENT wbtree_Development
 )
 
 install(
-    TARGETS tree_tree
-    EXPORT treeTargets
+    TARGETS wbtree_wbtree
+    EXPORT wbtreeTargets
     INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 
@@ -31,29 +31,29 @@ write_basic_package_version_file(
 
 # Allow package maintainers to freely override the path for the configs
 set(
-    tree_INSTALL_CMAKEDIR "${CMAKE_INSTALL_DATADIR}/${package}"
+    wbtree_INSTALL_CMAKEDIR "${CMAKE_INSTALL_DATADIR}/${package}"
     CACHE PATH "CMake package config location relative to the install prefix"
 )
-mark_as_advanced(tree_INSTALL_CMAKEDIR)
+mark_as_advanced(wbtree_INSTALL_CMAKEDIR)
 
 install(
     FILES cmake/install-config.cmake
-    DESTINATION "${tree_INSTALL_CMAKEDIR}"
+    DESTINATION "${wbtree_INSTALL_CMAKEDIR}"
     RENAME "${package}Config.cmake"
-    COMPONENT tree_Development
+    COMPONENT wbtree_Development
 )
 
 install(
     FILES "${PROJECT_BINARY_DIR}/${package}ConfigVersion.cmake"
-    DESTINATION "${tree_INSTALL_CMAKEDIR}"
-    COMPONENT tree_Development
+    DESTINATION "${wbtree_INSTALL_CMAKEDIR}"
+    COMPONENT wbtree_Development
 )
 
 install(
-    EXPORT treeTargets
-    NAMESPACE tree::
-    DESTINATION "${tree_INSTALL_CMAKEDIR}"
-    COMPONENT tree_Development
+    EXPORT wbtreeTargets
+    NAMESPACE wbtree::
+    DESTINATION "${wbtree_INSTALL_CMAKEDIR}"
+    COMPONENT wbtree_Development
 )
 
 if(PROJECT_IS_TOP_LEVEL)

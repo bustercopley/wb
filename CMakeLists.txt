@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.14)
 include(cmake/prelude.cmake)
 
 project(
-    tree
+    wbtree
     VERSION 0.1.0
     DESCRIPTION "Weight-balanced binary tree"
     HOMEPAGE_URL "https://example.com/"
@@ -15,21 +15,21 @@ include(cmake/variables.cmake)
 
 # ---- Declare library ----
 
-add_library(tree_tree INTERFACE)
-add_library(tree::tree ALIAS tree_tree)
+add_library(wbtree_wbtree INTERFACE)
+add_library(wbtree::wbtree ALIAS wbtree_wbtree)
 
 set_property(
-    TARGET tree_tree PROPERTY
-    EXPORT_NAME tree
+    TARGET wbtree_wbtree PROPERTY
+    EXPORT_NAME wbtree
 )
 
 target_include_directories(
-    tree_tree ${warning_guard}
+    wbtree_wbtree ${warning_guard}
     INTERFACE
     "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
 )
 
-target_compile_features(tree_tree INTERFACE cxx_std_20)
+target_compile_features(wbtree_wbtree INTERFACE cxx_std_20)
 
 # ---- Install rules ----
 
@@ -39,12 +39,12 @@ endif()
 
 # ---- Developer mode ----
 
-if(NOT tree_DEVELOPER_MODE)
+if(NOT wbtree_DEVELOPER_MODE)
   return()
 elseif(NOT PROJECT_IS_TOP_LEVEL)
   message(
       AUTHOR_WARNING
-      "Developer mode is intended for developers of tree"
+      "Developer mode is intended for developers of wbtree"
   )
 endif()
 
