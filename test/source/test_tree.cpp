@@ -12,7 +12,7 @@ template <typename T> struct cmp {
 template <typename T> cmp<T> make_cmp(T a) { return cmp<T>{a}; }
 
 // Iterate from beginning to end
-template <typename T> bool verify_size(tree<T> &dictionary) {
+template <typename T> bool verify_size(wb::tree<T> &dictionary) {
   std::size_t count{};
   for (auto iter = dictionary.begin(); iter != dictionary.end(); ++iter) {
     ++count;
@@ -40,7 +40,7 @@ bool test_small_trees() {
         if (size == 1 || i != j) {
           for (int pattern = 0; pattern != 1 << size; ++pattern) {
             for (std::size_t k = 0; k != size; ++k) {
-              tree<int> dictionary;
+              wb::tree<int> dictionary;
               // Insert items according to pattern
               for (std::size_t l = 0; l != size; ++l) {
                 if ((pattern >> l) & 1) {
@@ -93,7 +93,7 @@ bool items_are_in_ascending_order(auto &container) {
 
 bool test_range_between(auto &urbg, bool do_shuffle) {
   std::printf("Test range_between\n");
-  tree<int> dictionary;
+  wb::tree<int> dictionary;
   // Insert the numbers 1 to 100 into the tree, in random order
   std::vector<int> values(100);
   std::iota(values.begin(), values.end(), 1);
@@ -140,7 +140,7 @@ int main() {
   constexpr std::size_t repeat_count{64};
   constexpr std::size_t point_count{65536};
 
-  tree<float> dictionary;
+  wb::tree<float> dictionary;
 
   // auto urbg = xoshiro256starstar::xoshiro256starstar{1ull};
   auto urbg = xoshiro256starstar::xoshiro256starstar{

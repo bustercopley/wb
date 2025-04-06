@@ -4,7 +4,11 @@
 #include <tuple>
 #include <utility>
 
+namespace wb {
+
 template <typename T> struct tree;
+
+namespace detail {
 
 template <typename T> struct node {
   T value_;
@@ -20,7 +24,7 @@ template <typename T> struct node {
       parent_(nullptr) {}
 
 private:
-  friend struct tree<T>;
+  friend struct wb::tree<T>;
   node() = default;
 
   friend std::size_t size(const node<T> *s) { return s ? s->size_ : 0; }
@@ -378,3 +382,6 @@ private:
     return std::make_tuple(p, p);
   }
 };
+
+}
+}

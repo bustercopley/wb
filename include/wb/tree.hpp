@@ -54,16 +54,18 @@
 //   lcmp(x) returns -1 if and only if x is in [begin, i)
 //   rcmp(x) returns +1 if and only if x is in [j, end)
 
+namespace wb {
+
 template <typename T> struct tree {
 private:
-  node<T> sentinel_;
+  detail::node<T> sentinel_;
 
 public:
   struct iterator {
   private:
     friend struct tree<T>;
-    node<T> *p_;
-    iterator(node<T> *p): p_(p) {}
+    detail::node<T> *p_;
+    iterator(detail::node<T> *p): p_(p) {}
 
   public:
     using difference_type = std::ptrdiff_t;
@@ -84,7 +86,7 @@ public:
     }
 
     iterator operator++(int) {
-      node<T> *oldp = p_;
+      detail::node<T> *oldp = p_;
       p_ = inorder_successor(p_);
       return iterator{oldp};
     }
@@ -95,7 +97,7 @@ public:
     }
 
     iterator operator--(int) {
-      node<T> *oldp = p_;
+      detail::node<T> *oldp = p_;
       p_ = inorder_predecessor(p_);
       return iterator{oldp};
     }
@@ -107,8 +109,8 @@ public:
   struct const_iterator {
   private:
     friend struct tree<T>;
-    const node<T> *p_;
-    const_iterator(node<T> *p): p_(p) {}
+    const detail::node<T> *p_;
+    const_iterator(detail::node<T> *p): p_(p) {}
 
   public:
     using difference_type = std::ptrdiff_t;
@@ -132,7 +134,7 @@ public:
     }
 
     const_iterator operator++(int) {
-      const node<T> *oldp = p_;
+      const detail::node<T> *oldp = p_;
       p_ = inorder_successor(p_);
       return const_iterator{oldp};
     }
@@ -143,7 +145,7 @@ public:
     }
 
     const_iterator operator--(int) {
-      node<T> *oldp = p_;
+      detail::node<T> *oldp = p_;
       p_ = inorder_predecessor(p_);
       return const_iterator{oldp};
     }
@@ -165,15 +167,15 @@ public:
     return b == a;
   }
 
-  node<T> *first_node() {
-    node<T> *p = &sentinel_;
+  detail::node<T> *first_node() {
+    detail::node<T> *p = &sentinel_;
     while (p->left_) { p = p->left_; }
     return p;
   }
 
 public:
   ~tree() {
-    node<T> *p = sentinel_.left_;
+    detail::node<T> *p = sentinel_.left_;
     if (p) { p->delete_subtree(); }
   }
 
@@ -207,7 +209,7 @@ public:
   // Return an iterator to the first element 'x' in the tree which satisfies
   // 'cmp(x) >= 0', or if no such element exists, the past-the-end sentinel
   template <typename Comp> iterator lower_bound(Comp &&cmp) {
-    if (node<T> *p = sentinel_.left_) {
+    if (detail::node<T> *p = sentinel_.left_) {
       return iterator(lower_bound_node(p, (Comp &&)cmp));
     } else {
       return iterator(&sentinel_);
@@ -217,7 +219,7 @@ public:
   // Return an iterator to the first element 'x' in the tree which satisfies
   // 'cmp(x) > 0', or if no such element exists, the past-the-end sentinel
   template <typename Comp> iterator upper_bound(Comp &&cmp) {
-    if (node<T> *p = sentinel_.left_) {
+    if (detail::node<T> *p = sentinel_.left_) {
       return iterator(upper_bound_node(p, (Comp &&)cmp));
     } else {
       return iterator(&sentinel_);
@@ -228,7 +230,7 @@ public:
   // 'cmp(x) == 0'
   template <typename Comp>
   std::tuple<iterator, iterator> equal_range(Comp &&cmp) {
-    if (node<T> *p = sentinel_.left_) {
+    if (detail::node<T> *p = sentinel_.left_) {
       auto [l, r] = equal_range_nodes(p, (Comp &&)cmp);
       return std::make_tuple(iterator(l), iterator(r));
     } else {
@@ -241,7 +243,7 @@ public:
   // with respect to both comparators
   template <typename LComp, typename RComp>
   std::tuple<iterator, iterator> range_between(LComp &&lcmp, RComp &&rcmp) {
-    if (node<T> *p = sentinel_.left_) {
+    if (detail::node<T> *p = sentinel_.left_) {
       auto [l, r] = range_between_nodes(p, (LComp &&)lcmp, (RComp &&)rcmp);
       return std::make_tuple(iterator(l), iterator(r));
     } else {
@@ -252,3 +254,5 @@ public:
 
 static_assert(std::bidirectional_iterator<tree<int>::iterator>);
 static_assert(std::bidirectional_iterator<tree<int>::const_iterator>);
+
+}
