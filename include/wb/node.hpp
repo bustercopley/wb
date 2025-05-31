@@ -408,6 +408,5 @@ private:
     return std::make_tuple(p, p);
   }
 };
-
 }
 }
