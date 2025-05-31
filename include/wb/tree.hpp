@@ -31,12 +31,12 @@
 // element. Iterators to the erased element are invalidated. No other
 // iterators are invalidated.
 
-// The method 'exchange_elements(i, j)' exchanges the elements pointed
-// to by the iterators 'i' and 'j', which must be valid iterators pointing
+// The method 'exchange_elements(i, j)' exchanges the elements pointed to
+// by the iterators 'i' and 'j', which must be valid iterators pointing
 // to elements, without moving any other values in the sequence. No iterators
-// are invalidated. No iterators are invalidated, but iterators equal to
-// 'i' or 'j' are relocated: after 'exchange_elements' returns they point
-// to the old element in its new position in the sequence.
+// are invalidated, but iterators equal to 'i' or 'j' are relocated: after
+// 'exchange_elements' returns they point to the old element in its new
+// position in the sequence.
 
 // The binary search methods 'lower_bound(cmp)', 'upper_bound(cmp)',
 // 'equal_range(cmp)' assume that the tree is partitioned by the
